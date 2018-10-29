@@ -1,0 +1,43 @@
+---
+- name: Prepare all hosts for installation
+  hosts:  node1
+  vars:
+    path: /opt/whitenfv/k8s
+    folders_primary:
+      - "/namespace"
+      - "/pv"
+      - "/pvc"
+      - "/mongo"
+      - "/zookeper"
+      - "/kafka"
+    folders_secondary:
+      - "/ro-db"
+      - "/ro"
+      - "/lcm"
+      - "/nbi"
+      - "/light-ui"
+      - "/mon"
+      - "/pol"
+      - "/ssl"
+      nodes:
+      - "node1"
+      - "node2"
+      - "node3"
+  tasks:
+  - name: label nodes
+    command: 
+  - name: install openshift for k8s ansible module
+    pip:
+      name: openshift
+    become: yes
+
+
+##Deployments in orden just with cli
+
+  - name: Deploy k8s primary folders
+    command: kubectl create -f "{{ path }}""{{ item }}"
+    loop: "{{ folders_primary }}"
+
+  - name: Deploy k8s secondary folders
+    command: kubectl create -f "{{ path }}""{{ item }}"
+    loop: "{{ folders_secondary }}"

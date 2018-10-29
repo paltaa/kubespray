@@ -1,0 +1,22 @@
+---
+- name: Prepare all hosts for installation
+  hosts:  all
+  become: true
+  tasks:
+
+  - name: create whitenfv user
+    command: adduser whitenfv
+    ignore_errors: yes
+
+  - name: make whitenfv memver of sudo group
+    command: sudo usermod -aG sudo whitenfv
+    ignore_errors: yes
+
+
+  - name: make whitenfv member of lxd group
+    command: sudo usermod -aG lxd whitenfv
+    ignore_errors: yes
+
+  - name: copy ssh keys
+    command: ssh-copy-id whitenfv@{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}
+    ignore_errors: yes

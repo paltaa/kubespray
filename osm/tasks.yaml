@@ -1,0 +1,43 @@
+---
+- name: Prepare node1 (master) for juju and osm instalation
+  hosts:  node1
+  become: true
+  vars:
+    whitenfv_filename: whitenfv-r4_0.15-1_all.deb
+    whitenfv_path: "~/Downloads/{{ whitenfv_filename }}"
+
+  tasks:
+    ###move the file  whitenfv .deb
+  - name: Copy whitenfv.deb from local to master node1
+    copy:
+      src: "{{ whitenfv_path }}"
+      dest: /opt/
+      owner: whitenfv
+      mode: 777
+      ## make whitenfv member of lxd group
+
+      ##sudo apt get update
+  - name: run apt-get update command
+    command: sudo apt-get update
+
+  - name: install pexpect
+    pip:
+      name: pexpect
+    become: yes
+    ## command install ./.deb
+  - name: run command to install .deb
+    expect:
+      command:   sudo apt-get install /opt/"{{ whitenfv_filename }}"
+      responses:
+         Do you want to continue?: 'y'
+
+    ##run ./install_juju.sh
+  - name: cd to /opt/whitenfv/bin and execute juju and osm installer
+    command: chdir=/opt/whitenfv/bin/   ./whitenfv_juju_osmcli_install.sh
+    become_user: whitenfv
+    register: juju_output
+  - debug: var=juju_output
+
+    ## run command . ~/.bashrc
+  - name: source bashrc
+    command: source  ~/.bashrc
