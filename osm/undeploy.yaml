@@ -1,0 +1,50 @@
+- name: undeploy k8s resources of whitenfv
+  hosts:  all
+  vars:
+    path: /opt/whitenfv/k8s
+    folders_primary:
+      - "/pv"
+      - "/pvc"
+      - "/mongo"
+      - "/zookeeper"
+      - "/kafka"
+    folders_secondary:
+      - "/ro-db"
+      - "/ro"
+      - "/lcm"
+      - "/nbi"
+      - "/light-ui"
+      - "/mon"
+      - "/pol"
+      - "/ssl"
+  tasks:
+
+
+  - name: delete configmap
+    command: kubectl delete configmap config-env --namespace=whitenfv
+    ignore_errors: yes
+    when: inventory_hostname in groups['kube-master']
+
+##Deployments in orden just with cli,
+
+  - name: unDeploy k8s primary folders
+    command: kubectl delete -f "{{ path }}""{{ item }}"
+    loop: "{{ folders_primary }}"
+    ignore_errors: yes
+    when: inventory_hostname in groups['kube-master']
+
+  - name: unDeploy k8s secondary folders
+    command: kubectl delete -f "{{ path }}""{{ item }}"
+    loop: "{{ folders_secondary }}"
+    ignore_errors: yes
+    when: inventory_hostname in groups['kube-master']
+
+  - name: Delete k8s namespace
+    command: kubectl delete -f "{{ path }}"/namespace
+    ignore_errors: yes
+    when: inventory_hostname in groups['kube-master']
+
+
+  - name: Delete all Kafka files
+    command: rm -r /var/lib/whitenfv/kafka
+    become: yes

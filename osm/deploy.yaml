@@ -4,11 +4,10 @@
   vars:
     path: /opt/whitenfv/k8s
     folders_primary:
-      - "/namespace"
       - "/pv"
       - "/pvc"
       - "/mongo"
-      - "/zookeper"
+      - "/zookeeper"
       - "/kafka"
     folders_secondary:
       - "/ro-db"
@@ -19,25 +18,29 @@
       - "/mon"
       - "/pol"
       - "/ssl"
-      nodes:
-      - "node1"
-      - "node2"
-      - "node3"
   tasks:
-  - name: label nodes
-    command: 
+
   - name: install openshift for k8s ansible module
     pip:
       name: openshift
     become: yes
 
+  - name: Deploy k8s namespace
+    command: kubectl create -f "{{ path }}"/namespace
+    ignore_errors: yes
 
-##Deployments in orden just with cli
+  - name: deploying configmap
+    command: kubectl create configmap config-env --from-env-file=/opt/whitenfv/properties/whitenfv.properties --namespace=whitenfv
+    ignore_errors: yes
+
+##Deployments in orden just with cli,
 
   - name: Deploy k8s primary folders
     command: kubectl create -f "{{ path }}""{{ item }}"
     loop: "{{ folders_primary }}"
+    ignore_errors: yes
 
   - name: Deploy k8s secondary folders
     command: kubectl create -f "{{ path }}""{{ item }}"
     loop: "{{ folders_secondary }}"
+    ignore_errors: yes
