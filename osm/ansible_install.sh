@@ -13,9 +13,11 @@ if ! command -v ansible >/dev/null; then
                 exit 1
         fi
         echo "Installing pip via easy_install."
-        wget http://peak.telecommunity.com/dist/ez_setup.py
-        sudo python ez_setup.py && rm -f ez_setup.py
-        sudo easy_install pip
+        #wget http://peak.telecommunity.com/dist/ez_setup.py
+        #sudo python ez_setup.py && rm -f ez_setup.py
+        #sudo easy_install pip
+	export LC_ALL="en_US.UTF-8"
+	export LC_CTYPE="en_US.UTF-8"	sudo apt install python-pip
         # Make sure setuptools are installed crrectly.
         sudo pip install setuptools --no-use-wheel --upgrade
         echo "Installing required python modules."
