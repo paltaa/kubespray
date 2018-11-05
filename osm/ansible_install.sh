@@ -17,7 +17,8 @@ if ! command -v ansible >/dev/null; then
         #sudo python ez_setup.py && rm -f ez_setup.py
         #sudo easy_install pip
 	export LC_ALL="en_US.UTF-8"
-	export LC_CTYPE="en_US.UTF-8"	sudo apt install python-pip
+	export LC_CTYPE="en_US.UTF-8"	
+	sudo apt install python-pip
         # Make sure setuptools are installed crrectly.
         sudo pip install setuptools --no-use-wheel --upgrade
         echo "Installing required python modules."
