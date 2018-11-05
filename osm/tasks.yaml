@@ -14,7 +14,6 @@
       dest: /opt/
       owner: whitenfv
       mode: 777
-      ## make whitenfv member of lxd group
 
       ##sudo apt get update
   - name: run apt-get update command
@@ -26,6 +25,10 @@
       name: pexpect
     become: yes
     ## command install ./.deb
+  - name: install expect for juju bash
+    command: apt-get install expect
+    become: yes
+
   - name: run command to install .deb
     expect:
       command:   apt-get install /opt/"{{ whitenfv_filename }}"
@@ -34,29 +37,28 @@
     become: yes
 
 
-#   - name: "make broken sync module work"
-#     lineinfile:
-#       path: /etc/sudoers
-#       state: present
-#       regexp: '^%sudo\s'
-#       line: '%sudo ALL=(ALL) NOPASSWD: ALL'
-#     ##run ./install_juju.sh
-# #
-# #   - name: cd to /opt/whitenfv/bin and execute juju and osm installer
-# #     command: chdir=/opt/whitenfv/bin    ./whitenfv_juju_osmcli_install.sh
-# #     become: yes
-# #     become_user: whitenfv
-# #     become_flags: -S
-# #     register: juju_output
-# #   - debug: var=juju_output
-# #
-#
-#   - name: "cleanup after sync module"
-#     lineinfile:
-#       path: /etc/sudoers
-#       state: present
-#       regexp: '^%sudo\s'
-#       line: '%sudo ALL=(ALL) ALL'
-#     ## run command . ~/.bashrc
-#   - name: source bashrc
-#     command: source  ~/.bashrc
+   - name: "make broken sync module work"
+     lineinfile:
+       path: /etc/sudoers
+       state: present
+       regexp: '^%sudo\s'
+       line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+
+   - name: cd to /opt/whitenfv/bin and execute juju and osm installer
+     command: chdir=/opt/whitenfv/bin    ./whitenfv_juju_osmcli_install.sh
+     become: yes
+     become_user: whitenfv
+     become_flags: -S
+     register: juju_output
+   - debug: var=juju_output
+
+
+   - name: "cleanup after sync module"
+     lineinfile:
+       path: /etc/sudoers
+       state: present
+       regexp: '^%sudo\s'
+       line: '%sudo ALL=(ALL) ALL'
+     ## run command . ~/.bashrc
+   - name: source bashrc
+     command: source  ~/.bashrc
