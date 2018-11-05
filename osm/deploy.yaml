@@ -3,14 +3,14 @@
   hosts:  node1
   vars:
     path: /opt/whitenfv/k8s
-    folders_primary:
+    folders_primary_deploy:
       - "/pv"
       - "/pvc"
       - "/mongo"
       - "/zookeeper"
-      - "/kafka"
-    folders_secondary:
       - "/ro-db"
+    folders_secondary_deploy:
+#      - "/kafka" kafka cluster deployed manually for testing purposes
       - "/ro"
       - "/lcm"
       - "/nbi"
@@ -19,6 +19,9 @@
       - "/pol"
       - "/ssl"
   tasks:
+  - name: label master node with dedicated=master
+    command: kubectl label nodes node1 dedicated=master
+    ignore_errors: yes
 
   - name: install openshift for k8s ansible module
     pip:
@@ -33,14 +36,26 @@
     command: kubectl create configmap config-env --from-env-file=/opt/whitenfv/properties/whitenfv.properties --namespace=whitenfv
     ignore_errors: yes
 
-##Deployments in orden just with cli,
+##Deployments in orden just with cli
 
   - name: Deploy k8s primary folders
     command: kubectl create -f "{{ path }}""{{ item }}"
-    loop: "{{ folders_primary }}"
+    loop: "{{ folders_primary_deploy }}"
     ignore_errors: yes
+
+  - pause:
+      minutes: 1
+      prompt: "Make sure zookeeper, ro-db and mongo are ready before proceeding"
+
+  - name: Deploy k8s kafka cluster
+    command: kubectl create -f "{{ path }}"/kafka
+    ignore_errors: yes
+
+  - pause:
+      minutes: 1
+      prompt: "Make sure kafka is ready before proceeding"
 
   - name: Deploy k8s secondary folders
     command: kubectl create -f "{{ path }}""{{ item }}"
-    loop: "{{ folders_secondary }}"
+    loop: "{{ folders_secondary_deploy }}"
     ignore_errors: yes

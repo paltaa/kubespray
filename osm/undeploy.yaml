@@ -1,14 +1,14 @@
+---
 - name: undeploy k8s resources of whitenfv
   hosts:  all
   vars:
     path: /opt/whitenfv/k8s
     folders_primary:
-      - "/pv"
-      - "/pvc"
+
       - "/mongo"
       - "/zookeeper"
-      - "/kafka"
     folders_secondary:
+      - "/kafka"
       - "/ro-db"
       - "/ro"
       - "/lcm"
@@ -19,32 +19,45 @@
       - "/ssl"
   tasks:
 
+  - name: install openshift for k8s ansible module
+    pip:
+      name: openshift
+    become: yes
+    when: inventory_hostname in groups['kube-master']
 
   - name: delete configmap
-    command: kubectl delete configmap config-env --namespace=whitenfv
+    command: kubectl delete configmap config-env  --namespace=whitenfv
     ignore_errors: yes
     when: inventory_hostname in groups['kube-master']
 
-##Deployments in orden just with cli,
-
-  - name: unDeploy k8s primary folders
-    command: kubectl delete -f "{{ path }}""{{ item }}"
+  - name: Delete k8s primary folders
+    command: kubectl delete -f "{{ path }}""{{ item }}" --force --grace-period=0 --namespace=whitenfv
     loop: "{{ folders_primary }}"
     ignore_errors: yes
     when: inventory_hostname in groups['kube-master']
 
-  - name: unDeploy k8s secondary folders
-    command: kubectl delete -f "{{ path }}""{{ item }}"
+
+  - name: Delete k8s secondary folders
+    command: kubectl delete -f "{{ path }}""{{ item }}" --force --grace-period=0 --namespace=whitenfv
     loop: "{{ folders_secondary }}"
     ignore_errors: yes
     when: inventory_hostname in groups['kube-master']
+
+  - name: Delete pvc
+    command: kubectl delete pvc --all --force --grace-period=0 --namespace=whitenfv
+    ignore_errors: yes
+    when: inventory_hostname in groups['kube-master']
+
+  - name: Delete pv
+    command: kubectl delete pv --all --force --grace-period=0 --namespace=whitenfv
+    ignore_errors: yes
+    when: inventory_hostname in groups['kube-master']
+
+  - name: Delete all Kafka files
+    command: rm -r /var/lib/whitenfv/kafka
+    become: yes
 
   - name: Delete k8s namespace
     command: kubectl delete -f "{{ path }}"/namespace
     ignore_errors: yes
     when: inventory_hostname in groups['kube-master']
-
-
-  - name: Delete all Kafka files
-    command: rm -r /var/lib/whitenfv/kafka
-    become: yes

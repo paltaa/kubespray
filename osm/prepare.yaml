@@ -20,3 +20,9 @@
   - name: copy ssh keys
     command: ssh-copy-id whitenfv@{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}
     ignore_errors: yes
+
+  - name: Remove swapfile from /etc/fstab
+    mount:
+      name: swap
+      fstype: swap
+      state: absent
