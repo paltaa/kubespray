@@ -1,0 +1,5 @@
+---
+- name: configure lxd
+  hosts: node1
+  roles:
+    - ansible-lxd
