@@ -44,7 +44,7 @@
     ignore_errors: yes
 
   - pause:
-      minutes: 1
+      minutes: 2
       prompt: "Make sure zookeeper, ro-db and mongo are ready before proceeding"
 
   - name: Deploy k8s kafka cluster
@@ -52,7 +52,7 @@
     ignore_errors: yes
 
   - pause:
-      minutes: 1
+      minutes: 2
       prompt: "Make sure kafka is ready before proceeding"
 
   - name: Deploy k8s secondary folders

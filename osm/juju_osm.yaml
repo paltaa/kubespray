@@ -3,8 +3,8 @@
   hosts:  node1
   become: true
   vars:
-    whitenfv_filename: whitenfv-r4_0.15-1_all.deb
-    whitenfv_deb_path: "~/Downloads/{{ whitenfv_filename }}"
+    whitenfv_filename: whitenfv-r4_1.0-1_all.deb
+    whitenfv_deb_path: "{{ whitenfv_filename }}"
 
   tasks:
     ###move the file  whitenfv .deb
@@ -24,22 +24,18 @@
     pip:
       name: pexpect
     become: yes
-    ## command install ./.deb
 
 
-  - name: install expect for juju bash
-    expect:
-      command: apt-get install expect
-      responses:
-        Do you want to continue?: 'y'
-    become: yes
+#  - name: run command to install .deb
+#    expect:
+#      command:   apt-get install ./opt/"{{ whitenfv_filename }}"
+#      responses:
+#         Do you want to continue?: 'y'
+#    become: yes
 
-  - name: run command to install .deb
-    expect:
-      command:   apt-get install /opt/"{{ whitenfv_filename }}"
-      responses:
-         Do you want to continue?: 'y'
-    become: yes
+  - name: Install whitenfv.deb
+    apt: deb="/opt/{{ whitenfv_filename }}"
+    sudo: true
 
 
   - name: "make broken juju installer work"
@@ -49,13 +45,13 @@
        regexp: '^%sudo\s'
        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
 
-  - name: cd to /opt/whitenfv/bin and execute juju and osm installer
-    command: chdir=/opt/whitenfv/bin    ./whitenfv_juju_osmcli_install.sh
-    become: yes
-    become_user: whitenfv
-    become_flags: -S
-    register: juju_output
-  - debug: var=juju_output
+  # - name: cd to /opt/whitenfv/bin and execute juju and osm installer
+  #   command: chdir=/opt/whitenfv/bin    ./whitenfv_juju_osmcli_install.sh
+  #   become: yes
+  #   become_user: whitenfv
+  #   become_flags: -S
+  #   register: juju_output
+  # - debug: var=juju_output
 
   - name: "cleanup after sync module"
     lineinfile:
@@ -65,5 +61,5 @@
       line: '%sudo ALL=(ALL) ALL'
      ## run command . ~/.bashrc
   - name: source bashrc
-    command: source  ~/.bashrc
-}
+    sudo: no
+    shell: . /home/whitenfv/.bashrc

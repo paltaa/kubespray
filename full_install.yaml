@@ -1,0 +1,12 @@
+---
+#prepare all hosts for installation
+#- import_playbook: osm/prepare.yaml
+
+- import_playbook: cluster.yml
+#import lxd config in master node
+- import_playbook: lxd.yaml
+#install juju and osm
+- import_playbook: osm/juju_osm.yaml
+
+#Deploy k8s pods
+- import_playbook: osm/deploy.yaml

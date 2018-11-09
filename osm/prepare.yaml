@@ -4,21 +4,26 @@
   become: true
   tasks:
 
+  - name: install python 2
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+
   - name: create whitenfv user
     command: adduser whitenfv
     ignore_errors: yes
 
   - name: make whitenfv memver of sudo group
-    command: sudo usermod -aG sudo whitenfv
+    command:  usermod -aG sudo whitenfv
     ignore_errors: yes
+    become: yes
 
 
   - name: make whitenfv member of lxd group
-    command: sudo usermod -aG lxd whitenfv
+    command:  usermod -aG lxd whitenfv
     ignore_errors: yes
-
-  - name: copy ssh keys
-    command: ssh-copy-id whitenfv@{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}
+    become: yes
+    
+  - name: switch user for future plays
+    command: su whitenfv
     ignore_errors: yes
 
   - name: Remove swapfile from /etc/fstab
